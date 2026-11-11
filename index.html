@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1a101e">
+<title>MakeMeOver · Live Trace Mode Makeup Mirror</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#160f19;color:#fff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}.app{min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:16px 14px max(18px,env(safe-area-inset-bottom));gap:13px;background:radial-gradient(ellipse at 50% 15%,#3f2944,#170e1b 72%)}header{width:100%;max-width:620px;display:flex;align-items:center;justify-content:space-between}h1{font-size:22px;margin:0;color:#ffd0e2}.tag{font-size:12px;color:#eed5e6;border:1px solid #ffffff35;border-radius:20px;padding:6px 10px}.stage{width:100%;max-width:620px;display:flex;flex:1;min-height:280px;align-items:center;justify-content:center;background:#25172b;border:1px solid #ffffff24;border-radius:22px;overflow:hidden;padding:12px;position:relative}.mirror{width:90%;aspect-ratio:3/4;max-height:min(54dvh,540px);border-radius:20px;overflow:hidden;position:relative;background:linear-gradient(135deg,#4e3251,#201629);border:2px solid #f9b9d050;box-shadow:0 14px 40px #0006}.mirror canvas{width:100%;height:100%;display:block}.hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center;pointer-events:none}.hint span{padding:12px 15px;border-radius:14px;background:#1b1323d4;font-size:14px;line-height:1.45}.hidden{display:none!important}.panel{width:100%;max-width:620px;background:#24192b;border:1px solid #ffffff20;border-radius:22px;padding:15px}.overline{font-size:11px;text-transform:uppercase;letter-spacing:1.4px;color:#f7bad6;font-weight:700}h2{margin:5px 0;font-size:24px}.details{font-size:13px;line-height:1.5;color:#e8d8e8;margin:5px 0 12px}.controls{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap}button,select{border:1px solid #ffffff34;background:#39283e;color:#fff;border-radius:12px;padding:11px;font:inherit;font-size:13px;min-height:43px}select{flex:1;min-width:130px}.primary{background:#ffd0e2;color:#271126;font-weight:800;border:0;flex:1}button:disabled{opacity:.5}.slider{display:grid;grid-template-columns:95px 1fr 48px;align-items:center;gap:8px;margin:12px 0;font-size:13px}.slider output{text-align:right;color:#ffcfdf;font-variant-numeric:tabular-nums}input[type=range]{width:100%;accent-color:#ff9cbd}.tools{margin:10px 0 13px;padding:12px;border:1px solid #f2b5d252;border-radius:14px;background:#39243d}.tools h3{margin:0 0 6px;font-size:14px;color:#ffd0e2}.tools p{font-size:13px;line-height:1.5;margin:0;color:#f7e7f0}.minor{font-size:11px;color:#c8b0c7;margin:12px 0 0}.buttons{display:flex;gap:8px}.buttons>*{flex:1}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #fff}@media(max-height:680px){.stage{min-height:210px}.mirror{max-height:36dvh}.panel{padding:11px}.slider{margin:7px 0}}
+
+/* Signature Trace Mode */
+.trace-card{background:linear-gradient(135deg,#49304b,#312039);border:1px solid #ffb8d9;border-radius:16px;padding:13px;margin:12px 0}
+.trace-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.trace-heading strong{font-size:16px;color:#ffe0eb}.trace-toggle{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:700}
+.trace-toggle input{width:21px;height:21px;accent-color:#ffb8d9}
+.trace-card p{margin:8px 0;color:#f3ddeb;font-size:13px;line-height:1.45}
+.trace-substeps{display:flex;align-items:center;gap:8px}.trace-substeps button{padding:8px 12px;min-width:46px}
+.trace-substeps .trace-progress{flex:1;text-align:center;font-size:13px;font-weight:700;color:#ffe2ed}
+.trace-card select{width:100%;margin-top:9px}.trace-badge{position:absolute;top:12px;left:12px;padding:6px 10px;background:#28152de0;border:1px solid #ffc6e0;border-radius:999px;color:#ffe6f1;font-size:11px;font-weight:800;letter-spacing:.7px;pointer-events:none;z-index:2}
+.trace-badge.off{background:#342b39c9;border-color:#ffffff55;color:#ded0dc}
+/* Interactive visual brush library */
+.library{width:100%;max-width:620px;background:#24192b;border:1px solid #ffffff20;border-radius:22px;padding:16px;margin-bottom:14px}
+.library h2{font-size:22px;color:#ffd0e2;margin:5px 0}.library .sub{font-size:13px;color:#e8d8e8;line-height:1.55;margin:4px 0 12px}
+.library-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 14px}.library-actions button{font-size:12px;min-height:38px;padding:7px 12px}.library-actions button[aria-pressed=true]{background:#ffd0e2;color:#271126;border-color:#ffd0e2;font-weight:700}
+.brush-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.brush-card{padding:9px;min-width:0;text-align:left;background:#34243a;border:2px solid #ffffff24;display:flex;flex-direction:column;gap:6px;border-radius:15px}.brush-card[aria-pressed=true]{border-color:#ffc1df;background:#56314b}.brush-card strong{font-size:13px}.brush-card small{font-size:11px;color:#ead6e2;line-height:1.3}
+.brush-illustration{width:100%;height:105px;border-radius:11px;background:#f7e9ec;display:block}
+.brush-detail{background:#35253c;border:1px solid #e6afce66;border-radius:16px;padding:13px;margin-top:14px}.brush-detail h3{font-size:18px;color:#ffcee0;margin:0 0 8px}.brush-detail p{font-size:13px;line-height:1.55;margin:7px 0;color:#f6e6f1}
+.demo-wrap{position:relative;background:#fceaf0;border-radius:13px;overflow:hidden;max-width:440px;margin:12px auto 8px}.demo-svg{display:block;width:100%;height:170px}.demo-brush{transform-box:fill-box;transform-origin:center center;animation:brush-sweep 2.1s ease-in-out infinite alternate}.demo-wrap.paused .demo-brush{animation-play-state:paused}.demo-wrap[data-motion=tap] .demo-brush{animation-name:brush-tap;animation-duration:.85s}.demo-wrap[data-motion=trace] .demo-brush{animation-name:brush-trace;animation-duration:2.5s}.demo-wrap[data-motion=blend] .demo-brush{animation-name:brush-blend;animation-duration:1.8s}
+@keyframes brush-sweep{from{transform:translate(-35px,5px) rotate(-13deg)}to{transform:translate(38px,-8px) rotate(15deg)}}
+@keyframes brush-tap{from{transform:translate(0,-18px)}to{transform:translate(0,6px)}}
+@keyframes brush-trace{from{transform:translate(-30px,8px) rotate(-18deg)}to{transform:translate(44px,-19px) rotate(15deg)}}
+@keyframes brush-blend{0%{transform:translate(-14px,0) rotate(-15deg)}50%{transform:translate(16px,-11px) rotate(18deg)}100%{transform:translate(-14px,0) rotate(-15deg)}}
+.demo-controls{display:flex;align-items:center;gap:9px;justify-content:space-between}.demo-controls button{min-width:100px}.demo-note{color:#d3bacd;font-size:11px;line-height:1.4}
+@media(min-width:540px){.brush-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+</style>
+</head>
+<body>
+<div class="app">
+<header><h1>✦ MakeMeOver</h1><span class="tag">Mirror · Eye Looks</span></header>
+<div class="stage"><div class="mirror" id="mirror"><video id="video" autoplay muted playsinline hidden></video><canvas id="canvas" aria-label="Live camera and face-tracked makeup"></canvas><div id="traceBadge" class="trace-badge">✦ TRACE MODE · READY</div><div class="hint" id="hint"><span id="status">Tap Start Mirror to begin. Your camera stays on your phone.</span></div></div></div>
+<section class="panel">
+<div class="overline" id="count">Step 1</div><h2 id="title">Cleanse</h2><p class="details" id="description">Start with a clean, dry face before makeup.</p><p class="details" id="tip" aria-live="polite"></p><div class="tools" aria-live="polite"><h3>🖌️ Recommended brush or tool</h3><p id="brushTip"></p></div>
+<div class="trace-card" aria-label="Signature Trace Mode controls">
+  <div class="trace-heading"><strong>✦ Trace Mode — Your Live Makeup Guide</strong><label class="trace-toggle"><input type="checkbox" id="traceEnabled" checked> ON</label></div>
+  <p id="traceInstruction" aria-live="polite">Follow the glowing outline on your face when the camera finds you.</p>
+  <div class="trace-substeps"><button type="button" id="tracePrev" aria-label="Previous trace instruction">←</button><span class="trace-progress" id="traceProgress">1 of 1</span><button type="button" id="traceNext" aria-label="Next trace instruction">→</button></div>
+  <select id="traceEye" aria-label="Which eye to trace"><option value="both">Guide both eyes</option><option value="first">Guide first eye only</option><option value="second">Guide second eye only</option></select>
+</div>
+<div class="buttons"><button class="primary" id="start">Start Mirror</button><button id="next" disabled>Next Step →</button></div>
+<div class="controls"><select id="baseOrder" aria-label="Foundation or concealer first"><option value="foundation">Everyday: Foundation first</option><option value="concealer">Spot correction: Concealer first</option></select></div>
+<div class="controls" id="eyeStyleControls" style="display:none"><select id="shadowStyle" aria-label="Eyeshadow style"><option value="natural">Eyeshadow: Natural blend</option><option value="smokey">Eyeshadow: Smokey eye</option><option value="halo">Eyeshadow: Halo eye</option><option value="cutcrease">Eyeshadow: Cut crease</option><option value="shimmer">Eyeshadow: Shimmer lid</option></select><select id="linerStyle" aria-label="Eyeliner style"><option value="cat">Eyeliner: Cat eye</option><option value="classic">Eyeliner: Classic wing</option><option value="kitten">Eyeliner: Kitten wing</option><option value="puppy">Eyeliner: Puppy liner</option><option value="tightline">Eyeliner: Thin lash line</option><option value="graphic">Eyeliner: Graphic wing</option></select></div>
+<div class="controls"><select id="mode" aria-label="Overlay type"><option value="both">Guides + virtual makeup</option><option value="guide">Guides only</option><option value="tryon">Virtual makeup only</option></select><select id="palette" aria-label="Makeup colors"><option value="rose">Soft rose</option><option value="peach">Warm peach</option><option value="berry">Berry glam</option></select></div>
+<label class="slider"><span>Mirror Size</span><input id="mirrorSize" type="range" min="50" max="100" value="90" step="5"><output id="sizeValue">90%</output></label>
+<label class="slider"><span>Camera Zoom</span><input id="zoom" type="range" min="100" max="250" value="100" step="10"><output id="zoomValue">1.0×</output></label>
+<label class="slider"><span>Makeup Color</span><input id="intensity" type="range" min="0" max="100" value="55"><output id="intensityValue">55%</output></label>
+<div class="buttons"><button id="reset">Reset Mirror Size & Zoom</button></div>
+<p class="minor">Skincare tips are general information, not skin diagnoses. Sunscreen is recommended for daytime use; makeup SPF is not a substitute for adequate sunscreen. Virtual product placement is approximate.</p><p class="minor">Clean brushes regularly and do not share eye brushes. The adjustable mirror affects the visible camera window, not your phone's camera hardware. Internet required to load face tracking. No camera photos are saved or sent to an app server by this code.</p>
+</section>
+<section class="library" id="brushLibrary" aria-label="Visual makeup brush library">
+  <div class="overline">MakeMeOver beauty school</div>
+  <h2>🖌️ Visual Brush Library</h2>
+  <p class="sub">Tap a brush picture to learn its name, where it goes, and how to move it. These animated mini-lessons work even before you turn the camera on.</p>
+  <div class="library-actions" role="group" aria-label="Filter brushes"><button type="button" data-filter="all" aria-pressed="true">All brushes</button><button type="button" data-filter="face" aria-pressed="false">Face</button><button type="button" data-filter="eyes" aria-pressed="false">Eyes</button><button type="button" data-filter="lips" aria-pressed="false">Lips</button><button type="button" id="lessonBrush">For this lesson</button></div>
+  <div class="brush-grid" id="brushGrid"></div>
+  <div class="brush-detail" id="brushDetail" aria-live="polite">
+    <h3 id="brushName">Choose a brush</h3><p id="brushPurpose"></p><p id="brushHow"></p>
+    <div class="demo-wrap" id="demoWrap" data-motion="sweep">
+      <svg class="demo-svg" viewBox="0 0 360 170" role="img" aria-label="Animated demonstration of makeup brush movement">
+        <rect x="0" y="0" width="360" height="170" fill="#fceaf0"/>
+        <path id="demoArea" d="M80 92 Q180 25 280 92 Q180 149 80 92" fill="#e7a9be" fill-opacity=".55" stroke="#be7799" stroke-dasharray="6 5" stroke-width="2"/>
+        <g class="demo-brush" id="demoBrush"><path d="M188 110 L206 53" stroke="#724154" stroke-width="13" stroke-linecap="round"/><path d="M206 53 L217 28 Q219 16 208 12 Q198 22 199 37 Z" fill="#8d5a73" stroke="#55354c" stroke-width="1"/><path d="M202 57 L210 49" stroke="#d1a4a9" stroke-width="8"/></g>
+      </svg>
+    </div>
+    <div class="demo-controls"><span class="demo-note">Illustrated motion, not a real-person video. Keep tools away from the eye itself.</span><button type="button" id="demoToggle" aria-pressed="false">Pause demo</button></div>
+  </div>
+</section>
+</div>
+<script>
+let FaceLandmarker, FilesetResolver;
+const $=id=>document.getElementById(id),video=$('video'),canvas=$('canvas'),ctx=canvas.getContext('2d'),hint=$('hint'),status=$('status'),mirror=$('mirror');
+const model='https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
+let tracker,stream,active=false,lastVideoTime=-1,landmarks=null,frameId=0,step=0,tracePart=0;
+const lessonData={
+ cleanse:['Cleanse','Wash your face with a gentle cleanser, rinse and pat dry.','Start with clean hands. Avoid harsh scrubbing.'],
+ treatments:['Skin treatments (if used)','Apply any prescribed skin treatment as directed, after cleansing.','This optional step comes before moisturizer. Follow your clinician’s directions.'],
+ moisturize:['Moisturizer','Apply moisturizer suited to your skin and allow it to settle.','Even oily skin may benefit from a lightweight moisturizer.'],
+ sunscreen:['Sunscreen · daytime','Apply broad-spectrum SPF 30 or higher before makeup. Follow the label for amount and reapplication.','Do not rely on foundation SPF alone for protection.'],
+ primer:['Primer · optional','Smooth on a thin layer of primer if you want help with makeup wear or texture.','Let skincare settle first. Primer is optional.'],
+ foundation:['Foundation','Use a little foundation from the center of your face outward. Blend along the jawline.','Foundation first is a useful everyday default: you may need less concealer afterward.'],
+ concealer:['Concealer','Dot a small amount on areas needing extra coverage, such as under the eyes or spots, and gently blend.','For targeted discoloration, you can apply concealer or color corrector before foundation instead.'],
+ blush:['Blush','Apply blush over the upper cheeks and blend gently toward your temples.','Start with a small amount and build gradually.'],
+ contour:['Contour · optional','Place contour just below the cheekbones and blend upward.','Use a subtle shade; your face guide is approximate.'],
+ eyeshadow:['Eyeshadow styles','Choose a look: Natural, Smokey, Halo, Cut Crease or Shimmer. Follow the colored lid area and blend with a clean brush.','Smokey eye: start with a mid-tone transition, deepen the outer corner, then blend the edges softly. Keep powder out of your eyes.'],
+ eyeliner:['Eyeliner styles','Select Cat Eye, Classic Wing, Kitten, Puppy, Thin Lash Line or Graphic Wing. Follow the line starting near the lash line and work toward the outer corner.','Cat eye: sketch a small upward flick from the outer corner, connect it to the upper lashes, then fill in. Start thin and build slowly. Never apply eyeliner inside your eye.'],
+ lipstick:['Lipstick','Follow your natural lip line and fill inward.','Blot excess product for a softer finish.'],
+ setting:['Set makeup · optional','Use a little setting powder where you crease, or apply setting spray according to its directions.','Avoid spraying directly into open eyes.']
+};
+const traceSteps={
+  eyeshadow:{
+    natural:['Trace the soft transition area above the lid. Blend with a fluffy brush.','Trace the eyelid shape. Press neutral color onto the lid.','Blend the border of the two areas using light circular movements.'],
+    smokey:['Trace the upper lid and apply your medium transition shade.','Trace the outer corner. Add a deeper color gradually.','Trace close to the outer lash line and softly smudge, then blend the outer edges.'],
+    halo:['Trace the inner corner and build a deeper shade.','Trace the outer corner and use the same shade.','Trace the center of the lid and press on a light shimmer.'],
+    cutcrease:['Trace the curved crease line above your eyelid fold.','Trace the lower lid area; neatly define its edge.','Press a contrasting shadow onto the lid below the crease line.'],
+    shimmer:['Trace the eyelid and blend a light base color.','Trace the middle of the lid; tap on shimmer.','Blend only the outer edge so the shimmer stays bright.']
+  },
+  eyeliner:{
+    cat:['Trace close to the upper lash line in short strokes.','Trace a lifted wing from the outside corner.','Connect the wing tip to the outer lash line; fill the small triangle.'],
+    classic:['Trace a thin upper lash line.','Trace a medium upward wing.','Connect the tip to your lash line.'],
+    kitten:['Draw a very thin line along the upper lashes.','Follow a tiny outward flick.','Connect your small flick and keep it delicate.'],
+    puppy:['Trace the upper lash line.','Extend the line outward with a gentle downward slope.','Blend the short extension into the lash line.'],
+    tightline:['Trace just above your upper eyelashes. Do not draw inside your eye.','Work from the middle toward the outer corner.','Fill any gaps along the external upper lash line.'],
+    graphic:['Trace the upper lash line.','Trace a longer outward wing.','Follow the second floating graphic line above the outer eyelid.']
+  }
+};
+function traceList(){const lesson=lessonKeys()[step];if(lesson==='eyeshadow')return traceSteps.eyeshadow[$('shadowStyle').value];if(lesson==='eyeliner')return traceSteps.eyeliner[$('linerStyle').value];return [({cleanse:'Cleanse first; no facial tracing is needed.',treatments:'Follow the product instructions; do not trace medications.',moisturize:'Apply moisturizer evenly using clean fingertips.',sunscreen:'Apply sunscreen evenly as directed on the label.',primer:'Gently smooth on primer, if you use it.',foundation:'Follow the face guide, starting at the center and blending outward.',concealer:'Follow the under-eye guides, tapping product gently.',blush:'Follow the cheek outlines and blend upward.',contour:'Follow the cheekbone outlines and blend upward.',lipstick:'Follow the natural lip outline before filling in.',setting:'Lightly set makeup in the areas you need.'})[lesson]||'Follow your facial guide.'];}
+function updateTraceUI(){const arr=traceList();tracePart=Math.min(tracePart,arr.length-1);$('traceInstruction').textContent=arr[tracePart];$('traceProgress').textContent=`TRACE ${tracePart+1} OF ${arr.length}`;$('tracePrev').disabled=tracePart===0;$('traceNext').disabled=tracePart===arr.length-1;const on=$('traceEnabled').checked;$('traceBadge').textContent=on?(active&&landmarks?'✦ TRACE MODE · LIVE':'✦ TRACE MODE · READY'):'TRACE MODE · OFF';$('traceBadge').classList.toggle('off',!on);$('traceEye').style.display=(lessonKeys()[step]==='eyeshadow'||lessonKeys()[step]==='eyeliner')?'block':'none';}
+$('tracePrev').onclick=()=>{tracePart=Math.max(0,tracePart-1);updateTraceUI()};
+$('traceNext').onclick=()=>{tracePart=Math.min(traceList().length-1,tracePart+1);updateTraceUI()};
+$('traceEnabled').onchange=updateTraceUI;
+function lessonKeys(){return ['cleanse','treatments','moisturize','sunscreen','primer',...($('baseOrder').value==='concealer'?['concealer','foundation']:['foundation','concealer']),'blush','contour','eyeshadow','eyeliner','lipstick','setting']}
+
+const palettes={rose:{blush:[220,88,135],lip:[190,48,91],eye:[158,102,145],contour:[139,94,81]},peach:{blush:[250,140,100],lip:[208,105,86],eye:[204,150,104],contour:[150,108,78]},berry:{blush:[179,58,127],lip:[129,23,80],eye:[123,71,142],contour:[115,77,78]}};
+function message(text,show=true){status.textContent=text;hint.classList.toggle('hidden',!show)}
+window.addEventListener('error', e => {console.error('MakeMeOver error', e.error||e.message); message('App error: '+(e.message||'Unknown error')+'. Try reloading.')});
+window.addEventListener('unhandledrejection',e => {console.error('MakeMeOver async error',e.reason);message('Something failed to load. Check your connection and reload.')});
+const brushGuide={
+ cleanse:'Clean fingertips or a soft reusable face cloth. Avoid abrasive cleansing brushes.',
+ treatments:'Clean fingertips or a cotton swab for small spots. Follow your product instructions.',
+ moisturize:'Clean fingertips; gently spread an even layer.',
+ sunscreen:'Clean fingertips; apply an even, sufficient layer per the product label. A brush may leave gaps.',
+ primer:'Clean fingertips or a clean flat synthetic foundation brush for a thin, even layer.',
+ foundation:'Dense synthetic buffing brush for liquid or cream foundation; use small circles. A damp makeup sponge is a softer alternative.',
+ concealer:'Small, soft synthetic concealer brush for precise placement; tap out the edges with a damp sponge or fingertip.',
+ blush:'Fluffy angled blush brush for powder; small stippling brush or clean fingertips for cream blush. Blend upward.',
+ contour:'Small angled contour brush for powder; dense angled buffing brush for cream contour. Blend upward and outward.',
+ lipstick:'Small pointed lip brush to outline your natural lip shape and fill it in precisely.',
+ setting:'Large fluffy powder brush for a light dusting of setting powder, or a soft powder puff for targeted areas. No brush is needed for setting spray.'
+};
+const shadowBrushGuide={
+ natural:'Fluffy crease blending brush + flat shader brush. Place neutral color on the lid, then blend the crease in small circles.',
+ smokey:'Flat shader brush + small pencil/smudger brush + clean fluffy blending brush. Pack dark color near lashes, smudge the outer corner, then diffuse the edges.',
+ halo:'Small dense shader brush + detail blending brush + fingertip or flat shimmer brush. Darken inner and outer corners; tap shimmer into the center.',
+ cutcrease:'Small precision crease brush + flat concealer/detail brush + flat shader brush. Define the crease, clean the lid edge, then place a contrasting shadow.',
+ shimmer:'Flat synthetic shader brush or clean fingertip + fluffy crease blending brush. Press shimmer onto the lid; softly blend around it.'
+};
+const linerBrushGuide={
+ cat:'Ultra-fine angled eyeliner brush or pointed liner brush with gel eyeliner. Sketch the outer flick, connect it to the lash line, then fill in.',
+ classic:'Fine angled eyeliner brush or thin pointed liner brush. Extend a moderate wing and keep the inner lash line thin.',
+ kitten:'Tiny precision angled brush or micro-tip eyeliner applicator. Keep the wing short and delicate.',
+ puppy:'Thin angled eyeliner brush. Extend the outer line slightly downward, following the eye shape.',
+ tightline:'Very fine angled brush or precision pencil along the external upper lash line only. Avoid applying product to the waterline.',
+ graphic:'Ultra-fine pointed liner brush and small detail brush. Make clean, distinct lines; a cotton swab can tidy edges.'
+};
+function updateBrushTip(){const current=lessonKeys()[step];$('brushTip').textContent=current==='eyeshadow'?shadowBrushGuide[$('shadowStyle').value]:current==='eyeliner'?linerBrushGuide[$('linerStyle').value]:brushGuide[current]||'Use a clean, soft makeup brush appropriate for your product.';}
+function updateStep(){tracePart=0;const keys=lessonKeys(),[name,detail,tip]=lessonData[keys[step]];$('count').textContent=`Step ${step+1} of ${keys.length}`;$('title').textContent=name;$('description').textContent=detail;$('tip').textContent=tip;updateBrushTip(); if(keys[step]==='eyeshadow'||keys[step]==='eyeliner')requestAnimationFrame(updateEyeTip);$('next').textContent=step===keys.length-1?'Start Over ↺':'Next Step →';$('eyeStyleControls').style.display=(keys[step]==='eyeshadow'||keys[step]==='eyeliner')?'flex':'none';$('shadowStyle').style.display=keys[step]==='eyeshadow'?'block':'none';$('linerStyle').style.display=keys[step]==='eyeliner'?'block':'none';updateTraceUI()}
+$('next').onclick=()=>{step=(step+1)%lessonKeys().length;updateStep();if(brushFilter==='lesson')listBrushes()};
+$('baseOrder').onchange=()=>{step=0;updateStep();if(brushFilter==='lesson')listBrushes()};
+function updateEyeTip(){updateBrushTip();let stage=lessonKeys()[step];if(stage==='eyeshadow'){$('tip').textContent=shadowTips[$('shadowStyle').value]}else if(stage==='eyeliner'){$('tip').textContent=linerTips[$('linerStyle').value]}}
+const shadowTips={natural:'Use a light neutral shade over the lid, then blend a slightly deeper shade into the crease.',smokey:'Apply a medium shade over the lid. Deepen the outer corner with a darker shadow, then soften edges with a blending brush.',halo:'Blend a deeper shade at the inner and outer corners; leave the center bright with shimmer.',cutcrease:'Blend a crease shade above your natural fold; draw a defined contrasting lid shape beneath the crease.',shimmer:'Apply a soft matte transition shade, then pat shimmer on the center of the eyelid.'};
+const linerTips={cat:'Draw a longer upward flick from the outer corner; connect the tip back to the lash line to form a cat-eye triangle.',classic:'Draw a medium upward wing; keep the lash line thin toward the inner corner.',kitten:'Create a tiny subtle upward flick just beyond the outer corner.',puppy:'Extend the liner gently outward and slightly downward for a soft elongated eye.',tightline:'Keep a thin line directly along the upper lash line, without drawing inside the eye.',graphic:'Draw a wing and a second floating line above the outer eyelid for a graphic look.'};
+$('shadowStyle').onchange=()=>{tracePart=0;updateTraceUI();updateEyeTip();if(brushFilter==='lesson')listBrushes()};$('linerStyle').onchange=()=>{tracePart=0;updateTraceUI();updateEyeTip()};
+function updateSize(){mirror.style.width=$('mirrorSize').value+'%';$('sizeValue').textContent=$('mirrorSize').value+'%';resize()}
+$('mirrorSize').addEventListener('input',updateSize);
+$('zoom').addEventListener('input',()=>{$('zoomValue').textContent=(Number($('zoom').value)/100).toFixed(1)+'×'});
+$('intensity').addEventListener('input',()=>{$('intensityValue').textContent=$('intensity').value+'%'});
+$('reset').onclick=()=>{$('mirrorSize').value=90;$('zoom').value=100;updateSize();$('zoomValue').textContent='1.0×'};
+function resize(){let r=canvas.getBoundingClientRect();if(!r.width||!r.height)return;let d=Math.min(devicePixelRatio||1,2);let w=Math.round(r.width*d),h=Math.round(r.height*d);if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h}}
+new ResizeObserver(resize).observe(mirror);
+function rgba(a,opacity){return `rgba(${a[0]},${a[1]},${a[2]},${opacity})`}
+function poly(points){ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);for(let i=1;i<points.length;i++)ctx.lineTo(points[i].x,points[i].y);ctx.closePath()}
+function contour(points,guide,color,opacity){ctx.save();poly(points);if(opacity>0){ctx.fillStyle=rgba(color,opacity);ctx.fill()}if(guide){ctx.strokeStyle='#fff2ba';ctx.lineWidth=Math.max(2,canvas.width/200);ctx.setLineDash([7,5]);ctx.stroke()}ctx.restore()}
+function spot(center,rx,ry,angle,color,opacity,guide){ctx.save();ctx.translate(center.x,center.y);ctx.rotate(angle);if(opacity>0){ctx.save();ctx.scale(1,ry/rx);const g=ctx.createRadialGradient(0,0,0,0,0,rx);g.addColorStop(0,rgba(color,opacity));g.addColorStop(.65,rgba(color,opacity*.4));g.addColorStop(1,rgba(color,0));ctx.fillStyle=g;ctx.beginPath();ctx.arc(0,0,rx,0,Math.PI*2);ctx.fill();ctx.restore()}if(guide){ctx.beginPath();ctx.ellipse(0,0,rx*.92,ry*.92,0,0,Math.PI*2);ctx.strokeStyle='#fff2ba';ctx.lineWidth=2.5;ctx.setLineDash([7,5]);ctx.stroke()}ctx.restore()}
+function eyes(p){
+ // Face Landmarker outer/inner eye corners. Coordinates remain in source-video space.
+ return [[33,133,159],[263,362,386]].map(([outerIndex,innerIndex,upperIndex])=>{
+   const outer=p(outerIndex),inner=p(innerIndex),upperPoint=p(upperIndex);
+   const width=Math.hypot(outer.x-inner.x,outer.y-inner.y);
+   const center={x:(outer.x+inner.x)/2,y:(outer.y+inner.y)/2};
+   let vx=upperPoint.x-center.x,vy=upperPoint.y-center.y;
+   const d=Math.hypot(vx,vy)||1;
+   return {outer,inner,center,width,up:{x:vx/d,y:vy/d}};
+ });
+}
+// Bright, step-by-step placement paths. These are approximate educational guides,
+// not calibrated precision cosmetics or automatic detection of applied makeup.
+function traceLine(pts,closed=false){
+ if(pts.length<2)return;
+ ctx.save();ctx.beginPath();ctx.moveTo(pts[0].x,pts[0].y);
+ for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i].x,pts[i].y);
+ if(closed)ctx.closePath();
+ const width=Math.max(2.4,canvas.width/190);
+ ctx.lineJoin='round';ctx.lineCap='round';ctx.strokeStyle='#341126';ctx.lineWidth=width+5;ctx.stroke();
+ ctx.strokeStyle='#ffdb57';ctx.lineWidth=width;ctx.setLineDash([7,5]);ctx.shadowColor='#f98cd6';ctx.shadowBlur=8;ctx.stroke();ctx.setLineDash([]);
+ // Starting point marks where to put the brush first.
+ ctx.beginPath();ctx.arc(pts[0].x,pts[0].y,width*1.55,0,Math.PI*2);ctx.fillStyle='#fff9cb';ctx.fill();ctx.restore();
+}
+function traceEyeOverlay(p,which,style,part,current){
+ const ee=eyes(p),choices=$('traceEye').value;
+ for(let j=0;j<ee.length;j++){
+  if(choices==='first'&&j!==0 || choices==='second'&&j!==1)continue;
+  const e=ee[j],w=e.width,up=e.up,inner=e.inner,outer=e.outer;
+  const at=(t,h)=>({x:inner.x+(outer.x-inner.x)*t+up.x*w*h,y:inner.y+(outer.y-inner.y)*t+up.y*w*h});
+  if(current==='eyeliner'){
+   const height=style==='puppy'?-.12:style==='kitten'?.09:style==='classic'?.20:style==='graphic'?.29:.30;
+   const len={cat:.4,classic:.28,kitten:.13,puppy:.25,tightline:0,graphic:.37}[style];
+   const lash=[at(.08,.025),at(.3,.058),at(.55,.075),at(.78,.065),at(.97,.016)];
+   if(part===0)traceLine(lash);
+   else if(part===1){if(len)traceLine([at(.97,.016),at(1+len*.45,height*.45),at(1+len,height)]);else traceLine(lash.slice(2));}
+   else if(style==='graphic')traceLine([at(.52,.30),at(.76,.37),at(1.04,.42),at(1.31,.37)]);
+   else if(len)traceLine([at(1+len,height),at(.79,.055),at(.97,.016)]);
+   else traceLine(lash);
+  } else {
+   const lid=[at(.09,.06),at(.24,.21),at(.5,.31),at(.78,.24),at(.96,.04)];
+   const outerPatch=[at(.60,.11),at(.84,.24),at(1.04,.17),at(.90,-.05),at(.64,-.04)];
+   const innerPatch=[at(.04,.04),at(.14,.19),at(.36,.20),at(.29,-.05)];
+   const middlePatch=[at(.34,.04),at(.37,.27),at(.61,.28),at(.67,.04)];
+   const crease=[at(.10,.32),at(.3,.39),at(.5,.41),at(.75,.35),at(.92,.23)];
+   const upperLash=[at(.12,.01),at(.42,.025),at(.73,.03),at(.95,.01)];
+   let path;
+   switch(style){
+    case 'smokey':path=part===0?lid:part===1?outerPatch:upperLash;break;
+    case 'halo':path=part===0?innerPatch:part===1?outerPatch:middlePatch;break;
+    case 'cutcrease':path=part===0?crease:part===1?lid:middlePatch;break;
+    case 'shimmer':path=part===0?lid:part===1?middlePatch:crease;break;
+    default:path=part===0?crease:part===1?lid:crease;
+   }
+   traceLine(path,style!=='cutcrease'&&part===1);
+  }
+ }
+}
+function overlay(lm,scale,dx,dy){
+ const p=i=>({x:dx+lm[i].x*video.videoWidth*scale,y:dy+lm[i].y*video.videoHeight*scale}),mix=(a,b,t)=>({x:a.x*(1-t)+b.x*t,y:a.y*(1-t)+b.y*t});
+ const palette=palettes[$('palette').value],amount=Number($('intensity').value)/100,traceOn=$('traceEnabled').checked&&$('mode').value!=='tryon',guide=$('mode').value!=='tryon'&&!traceOn,virtual=$('mode').value!=='guide';
+ const faceW=Math.hypot(p(234).x-p(454).x,p(234).y-p(454).y),current=lessonKeys()[step];
+ if(current==='blush'||current==='contour'){for(const [a,b] of [[234,205],[454,425]]){const pa=p(a),pb=p(b),q=mix(pa,pb,current==='blush'?.58:.43),theta=Math.atan2(pb.y-pa.y,pb.x-pa.x);q.y+=faceW*(current==='contour'?.10:-.035);spot(q,faceW*(current==='blush'?.16:.18),faceW*(current==='blush'?.085:.057),theta,current==='blush'?palette.blush:palette.contour,virtual?amount*(current==='blush'?.65:.43):0,guide)}}
+ else if(current==='lipstick'){const outer=[61,40,37,0,267,270,291,375,321,405,314,17,84,181,91,146].map(p);contour(outer,guide,palette.lip,virtual?amount*.7:0)}
+ else if(current==='eyeshadow'){
+  const style=$('shadowStyle').value;
+  for(const e of eyes(p)){
+    const w=e.width,up=e.up,along=e.along,outer=e.outer,inner=e.inner,center=e.center;
+    const at=(t,h)=>({x:inner.x+(outer.x-inner.x)*t+up.x*w*h,y:inner.y+(outer.y-inner.y)*t+up.y*w*h});
+    const region=[at(.03,.01),at(.14,.22),at(.35,.32),at(.62,.30),at(.87,.20),at(1,.02),at(.72,-.08),at(.35,-.08)];
+    if(virtual)contour(region,false,palette.eye,amount*(style==='smokey'?.62:.39));
+    if(guide)contour(region,true,palette.eye,0);
+    if(style==='smokey'){
+      let patch=[at(.62,.07),at(.82,.21),at(1.05,.19),at(.95,-.06),at(.67,-.04)];
+      contour(patch,guide,[73,46,69],virtual?amount*.52:0);
+    }else if(style==='halo'){
+      contour([at(.01,.04),at(.22,.21),at(.34,.20),at(.28,-.06)],guide,[88,56,92],virtual?amount*.48:0);
+      contour([at(.68,.08),at(.84,.23),at(1.01,.08),at(.88,-.07)],guide,[88,56,92],virtual?amount*.48:0);
+      spot(at(.52,.11),w*.18,w*.14,0,[241,199,204],virtual?amount*.6:0,guide);
+    }else if(style==='cutcrease'){
+      const crease=[at(.10,.32),at(.27,.39),at(.51,.40),at(.75,.34),at(.92,.24)];
+      ctx.save();ctx.beginPath();ctx.moveTo(crease[0].x,crease[0].y);for(let i=1;i<crease.length;i++)ctx.lineTo(crease[i].x,crease[i].y);
+      ctx.strokeStyle=guide?'#fff2ba':rgba([113,65,97],amount*.7);ctx.lineWidth=Math.max(2,w*.055);ctx.setLineDash(guide?[6,4]:[]);ctx.stroke();ctx.restore();
+    }else if(style==='shimmer')spot(at(.49,.10),w*.30,w*.13,0,[242,211,190],virtual?amount*.56:0,guide);
+  }
+ }
+ else if(current==='eyeliner'){
+  const style=$('linerStyle').value;
+  for(const e of eyes(p)){
+    const w=e.width,up=e.up,inner=e.inner,outer=e.outer;
+    const at=(t,h)=>({x:inner.x+(outer.x-inner.x)*t+up.x*w*h,y:inner.y+(outer.y-inner.y)*t+up.y*w*h});
+    const lash=[at(.08,.015),at(.27,.06),at(.48,.075),at(.72,.075),at(.94,.015)];
+    const length={cat:.40,classic:.28,kitten:.13,puppy:.25,tightline:0,graphic:.37}[style];
+    const height=style==='puppy'?-0.12:style==='kitten'?.09:style==='classic'?.20:style==='graphic'?.29:.30;
+    const end=at(1+length,height);
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(lash[0].x,lash[0].y);
+    for(const q of lash.slice(1))ctx.lineTo(q.x,q.y);
+    if(length)ctx.lineTo(end.x,end.y);
+    if(style==='cat'||style==='classic'||style==='graphic'){let back=at(.67,.045);ctx.lineTo(back.x,back.y)}
+    ctx.strokeStyle=guide?'#fff2ba':'#211422';ctx.lineWidth=Math.max(2,w*(style==='tightline'?.026:.055)*Math.max(.5,amount));ctx.setLineDash(guide?[7,4]:[]);ctx.stroke();ctx.restore();
+    if(style==='graphic'){
+      const a=at(.59,.32),b=at(.92,.38),c=at(1.29,.37);
+      ctx.save();ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.quadraticCurveTo(b.x,b.y,c.x,c.y);ctx.lineWidth=Math.max(2,w*.035);ctx.strokeStyle=guide?'#fff2ba':'#211422';ctx.setLineDash(guide?[6,4]:[]);ctx.stroke();ctx.restore();
+    }
+  }
+ }
+ else if(current==='concealer'){for(const [a,b] of [[33,133],[362,263]]){const q=mix(p(a),p(b),.5);spot({x:q.x,y:q.y+faceW*.105},faceW*.105,faceW*.052,0,[239,198,172],virtual?amount*.14:0,guide)}}
+ else if(current==='foundation'){const ovalCenter=p(4);spot({x:ovalCenter.x,y:ovalCenter.y+faceW*.10},faceW*.49,faceW*.60,0,[203,164,143],virtual?amount*.07:0,guide)}
+ if(traceOn){if(current==='eyeshadow'||current==='eyeliner')traceEyeOverlay(p,null,current==='eyeshadow'?$('shadowStyle').value:$('linerStyle').value,tracePart,current);else if(current==='blush'||current==='contour'){for(const [a,b] of [[234,205],[454,425]]){let pa=p(a),pb=p(b),q=mix(pa,pb,current==='blush'?.58:.43);q.y+=faceW*(current==='contour'?.10:-.035);traceLine([mix(pa,q,.45),q,mix(q,pb,.45)])}}else if(current==='lipstick'){traceLine([61,40,37,0,267,270,291,375,321,405,314,17,84,181,91,146].map(p),true)}else if(current==='concealer'){for(const [a,b] of [[33,133],[362,263]]){const q=mix(p(a),p(b),.5);traceLine([{x:q.x-faceW*.07,y:q.y+faceW*.085},{x:q.x,y:q.y+faceW*.12},{x:q.x+faceW*.07,y:q.y+faceW*.085}])}}else if(current==='foundation'){traceLine([p(10),p(151),p(9),p(8)])}}
+}
+
+function draw(){if(!active)return;resize();const w=canvas.width,h=canvas.height;ctx.clearRect(0,0,w,h);if(video.readyState>=2&&video.videoWidth){if(tracker && video.currentTime!==lastVideoTime){lastVideoTime=video.currentTime;try{landmarks=tracker.detectForVideo(video,performance.now()).faceLandmarks?.[0]||null;message(landmarks?'':'Move into better lighting and center your face.',!landmarks);$('traceBadge').textContent=$('traceEnabled').checked?(landmarks?'✦ TRACE MODE · LIVE':'✦ TRACE MODE · FINDING FACE'):'TRACE MODE · OFF'}catch(err){console.error(err);message('Face tracking paused. Restart mirror if needed.')}}const scale=Math.max(w/video.videoWidth,h/video.videoHeight)*(Number($('zoom').value)/100),dx=(w-video.videoWidth*scale)/2,dy=(h-video.videoHeight*scale)/2;ctx.save();ctx.translate(w,0);ctx.scale(-1,1);ctx.drawImage(video,dx,dy,video.videoWidth*scale,video.videoHeight*scale);if(landmarks)overlay(landmarks,scale,dx,dy);ctx.restore()}frameId=requestAnimationFrame(draw)}
+async function loadTracker(){
+  const library = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/+esm');
+  FaceLandmarker = library.FaceLandmarker; FilesetResolver = library.FilesetResolver;
+  const vision=await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm');const config={baseOptions:{modelAssetPath:model,delegate:'GPU'},runningMode:'VIDEO',numFaces:1};try{return await FaceLandmarker.createFromOptions(vision,config)}catch(err){console.warn('GPU unavailable; using CPU',err);config.baseOptions.delegate='CPU';return FaceLandmarker.createFromOptions(vision,config)}}
+async function start(){const button=$('start');button.disabled=true;message('Opening camera…');try{if(!navigator.mediaDevices?.getUserMedia)throw Error('Camera requires an HTTPS website (such as GitHub Pages).');stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:'user',width:{ideal:720},height:{ideal:1280}}});video.srcObject=stream;await video.play();active=true;landmarks=null;lastVideoTime=-1;$('next').disabled=false;button.textContent='Stop Mirror';button.disabled=false;message('Camera is on! Loading face tracking…');draw();
+  try {tracker=tracker||await loadTracker();if(active)message('Face tracking ready. Center your face.')}
+  catch(loadError) {console.error('Model failed to load:',loadError);message('Camera works, but face tracking could not load. Check your internet connection and reload. Mirror size and zoom still work.');}}catch(err){console.error(err);message('Unable to start mirror: '+err.message);stream?.getTracks().forEach(t=>t.stop());stream=null;button.textContent='Try Again';button.disabled=false}}
+function stop(){active=false;cancelAnimationFrame(frameId);stream?.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;landmarks=null;ctx.clearRect(0,0,canvas.width,canvas.height);$('start').textContent='Start Mirror';$('next').disabled=true;message('Camera stopped. Tap Start Mirror to resume.')}
+
+// Self-contained illustrated brush library. All descriptions and SVG geometry are local.
+const brushCatalog=[
+ {id:'buffing',name:'Foundation Buffing Brush',category:'face',head:'round',uses:'Liquid or cream foundation; natural and full-coverage looks.',where:'Forehead, cheeks, nose, chin and jawline.',how:'Start at the middle of the face. Buff outward using small gentle circles; blend lightly over the jaw.',motion:'blend'},
+ {id:'concealer',name:'Small Concealer Brush',category:'face',head:'flat',uses:'Under-eye and spot concealer; cut-crease clean-up.',where:'Under-eye area and individual spots; for cut crease, the movable upper eyelid.',how:'Place a small amount and tap along the edges rather than wiping away coverage.',motion:'tap'},
+ {id:'blush',name:'Angled Blush Brush',category:'face',head:'angled',uses:'Powder blush and soft lifting effects.',where:'Upper cheeks, toward the temples.',how:'Pick up a little powder, tap off excess and sweep upward in light strokes.',motion:'sweep'},
+ {id:'contour',name:'Contour Brush',category:'face',head:'angled-narrow',uses:'Soft cheek definition and cream or powder contour.',where:'Below the cheekbones; optionally sides of forehead or jaw.',how:'Keep the deepest shade in a small area and blend upward with soft strokes.',motion:'sweep'},
+ {id:'powder',name:'Fluffy Powder Brush',category:'face',head:'fluffy',uses:'Setting powder and soft finishing.',where:'T-zone or areas that become shiny.',how:'Dust or press a light layer of setting powder; avoid overapplying.',motion:'tap'},
+ {id:'blending',name:'Fluffy Eyeshadow Blending Brush',category:'eyes',head:'fluffy-small',uses:'Smokey eye, natural shadow and transition shades.',where:'Upper eyelid crease, away from the eyeball.',how:'Use tiny circular or windshield-wiper motions with a clean, soft brush to diffuse edges.',motion:'blend'},
+ {id:'shader',name:'Flat Shader Brush',category:'eyes',head:'flat-small',uses:'Packing smoky color, shimmer, halo eye and lid coverage.',where:'Movable upper eyelid.',how:'Press color gently onto the lid instead of sweeping it away. Blend edges with a different brush.',motion:'tap'},
+ {id:'pencil',name:'Pencil / Smudger Brush',category:'eyes',head:'point',uses:'Smokey eye outer corner and soft lash-line shadow.',where:'Outer corner and just outside the lash line, not the waterline.',how:'Pick up a little shadow and use small back-and-forth strokes near the outer lash edge.',motion:'blend'},
+ {id:'detail',name:'Precision Crease Brush',category:'eyes',head:'point-small',uses:'Cut crease, halo and detailed shadow work.',where:'Crease and the small inner/outer portions of the eyelid.',how:'Sketch your crease with light pressure and gradually build definition.',motion:'trace'},
+ {id:'liner',name:'Fine Angled Liner Brush',category:'eyes',head:'angled-tiny',uses:'Cat eye, classic wing, kitten, puppy and graphic eyeliner.',where:'Along the outer upper lash line and beyond its outer corner.',how:'Draw a short line outward from the outer corner, then connect it back to the upper lash line.',motion:'trace'},
+ {id:'pointliner',name:'Ultra-Fine Pointed Liner',category:'eyes',head:'needle',uses:'Sharp cat-eye flicks and graphic line details.',where:'Above the upper lash line and outer wing.',how:'Make short connected strokes rather than one long pull. Never use tools on the waterline.',motion:'trace'},
+ {id:'lip',name:'Precision Lip Brush',category:'lips',head:'flat-small',uses:'Lipstick, crisp edges, ombré lip looks.',where:'Natural lip border and lips.',how:'Outline the natural lip shape first, then fill from the corners toward the center.',motion:'trace'}
+];
+const brushFaces={cleanse:[''],treatments:[''],moisturize:[''],sunscreen:[''],primer:['buffing'],foundation:['buffing'],concealer:['concealer'],blush:['blush'],contour:['contour'],eyeshadow:['shader','blending','pencil','detail'],eyeliner:['liner','pointliner'],lipstick:['lip'],setting:['powder']};
+const brushForShadow={natural:['shader','blending'],smokey:['shader','pencil','blending'],halo:['shader','detail'],cutcrease:['detail','concealer','shader'],shimmer:['shader','blending']};
+let selectedBrush='blending',brushFilter='all',demoPaused=false;
+function brushArt(b){
+ const heads={round:'M-20 -40 Q-28 -78 0 -84 Q28 -78 20 -40 Z',flat:'M-20 -40 L-20 -72 Q0 -80 20 -72 L20 -40 Z',angled:'M-21 -40 L-21 -63 L17 -88 L22 -40 Z','angled-narrow':'M-14 -40 L-14 -65 L13 -85 L17 -40 Z',fluffy:'M-28 -40 Q-39 -93 0 -98 Q39 -93 28 -40 Z','fluffy-small':'M-18 -40 Q-24 -75 0 -82 Q24 -75 18 -40 Z','flat-small':'M-11 -40 L-11 -68 Q0 -72 11 -68 L11 -40 Z',point:'M-13 -40 Q-14 -62 0 -86 Q14 -62 13 -40 Z','point-small':'M-10 -40 Q-10 -59 0 -80 Q10 -59 10 -40 Z','angled-tiny':'M-11 -40 L-11 -59 L10 -71 L11 -40 Z',needle:'M-8 -40 Q-7 -63 0 -91 Q7 -63 8 -40 Z'};
+ return `<svg class="brush-illustration" viewBox="0 0 180 105" aria-hidden="true"><defs><linearGradient id="handle-${b.id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#573746"/><stop offset=".5" stop-color="#a47486"/><stop offset="1" stop-color="#573746"/></linearGradient></defs><g transform="translate(90,57) rotate(38)"><rect x="-10" y="-39" width="20" height="110" rx="8" fill="url(#handle-${b.id})"/><rect x="-13" y="-45" width="26" height="18" rx="2" fill="#cda4b7"/><path d="${heads[b.head]}" fill="#81526d" stroke="#5b3a54" stroke-width="1.5"/><path d="M-4 -44 Q-9 -60 -2 -73" fill="none" stroke="#d4a2b3" stroke-width="2" opacity=".7"/></g></svg>`;
+}
+function listBrushes(){
+ const relevant=new Set(brushFaces[lessonKeys()[step]]||[]);
+ let items=brushFilter==='lesson' ? brushCatalog.filter(b=>relevant.has(b.id)) : brushFilter==='all'?brushCatalog:brushCatalog.filter(b=>b.category===brushFilter);
+ if(brushFilter==='lesson' && lessonKeys()[step]==='eyeshadow')items=brushCatalog.filter(b=>brushForShadow[$('shadowStyle').value].includes(b.id));
+ if(!items.length){$('brushGrid').innerHTML='<p class="sub">This preparation step works best with clean hands or the product applicator. Choose All brushes to explore.</p>';return;}
+ $('brushGrid').innerHTML=items.map(b=>`<button type="button" class="brush-card" data-brush="${b.id}" aria-pressed="${selectedBrush===b.id}">${brushArt(b)}<strong>${b.name}</strong><small>${b.uses}</small></button>`).join('');
+ $('brushGrid').querySelectorAll('[data-brush]').forEach(btn=>btn.onclick=()=>showBrush(btn.dataset.brush));
+ if(!items.some(b=>b.id===selectedBrush))showBrush(items[0].id,false);
+}
+function showBrush(id,regenerate=true){const b=brushCatalog.find(x=>x.id===id);if(!b)return;selectedBrush=id;
+ $('brushName').textContent=b.name;
+ $('brushPurpose').textContent='Best for: '+b.uses+' Where to apply: '+b.where;
+ $('brushHow').textContent='How to use: '+b.how;
+ $('demoWrap').dataset.motion=b.motion;
+ $('demoArea').setAttribute('d',b.category==='eyes'?'M70 99 Q180 16 290 99 Q180 145 70 99':b.category==='lips'?'M111 90 Q145 59 180 84 Q215 59 249 90 Q215 125 180 111 Q145 125 111 90':'M74 94 Q112 39 182 60 Q243 41 291 95 Q236 132 174 131 Q113 130 74 94');
+ $('demoWrap').classList.toggle('paused',demoPaused);
+ if(regenerate)listBrushes();else $('brushGrid').querySelectorAll('[data-brush]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.brush===id)));
+}
+function changeBrushFilter(next){brushFilter=next;document.querySelectorAll('.library-actions [data-filter]').forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.filter===next)));listBrushes();}
+document.querySelectorAll('.library-actions [data-filter]').forEach(btn=>btn.addEventListener('click',()=>changeBrushFilter(btn.dataset.filter)));
+$('lessonBrush').onclick=()=>{brushFilter='lesson';document.querySelectorAll('.library-actions [data-filter]').forEach(btn=>btn.setAttribute('aria-pressed','false'));listBrushes();document.querySelector('#brushLibrary').scrollIntoView({behavior:'smooth',block:'start'})};
+$('demoToggle').onclick=()=>{demoPaused=!demoPaused;$('demoWrap').classList.toggle('paused',demoPaused);$('demoToggle').textContent=demoPaused?'Play demo':'Pause demo';$('demoToggle').setAttribute('aria-pressed',String(demoPaused));};
+listBrushes();showBrush(selectedBrush,false);
+
+$('start').onclick=()=>active?stop():start();window.addEventListener('pagehide',()=>{if(active)stop()});updateStep();updateSize();
+</script>
+</body></html>
